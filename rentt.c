@@ -12,6 +12,7 @@ typedef struct {
     int y;
 } MAIN_WIN;
 
+char** read_words(char * buf, char** words, size_t * n, FILE * fp);
 int main(int argc, char *argv[]) {
     int TESTED_WORDS_TOTAL = atoi(argv[1]);
     if (TESTED_WORDS_TOTAL > 250) {
@@ -22,7 +23,6 @@ int main(int argc, char *argv[]) {
     FILE * fp = fopen("words.txt", "r");
     char * buf = NULL; // will be alloced by getline
     size_t n = 0; // length of buf
-    size_t total_words = 0;
     char ** words = NULL;
     time_t start_time = 0;
 
@@ -57,7 +57,6 @@ int main(int argc, char *argv[]) {
     typing_window->scr = newwin(typing_window->height, typing_window->width, typing_window->y, typing_window->x);
     box(typing_window->scr, 0, 0);
     wrefresh(typing_window->scr);
-
     keypad(typing_window->scr, TRUE);
 
     // init stats screen
@@ -70,6 +69,7 @@ int main(int argc, char *argv[]) {
     box(stats_window->scr, 0, 0);
     wrefresh(stats_window->scr);
 
+    // fills stats window with instructions
     mvwaddstr(stats_window->scr, 1,1, "welcome to renee's typing tutor!");
     mvwaddstr(stats_window->scr, 2,1, "backspaces aren't allowed (just dont mess up lol its a feature)");
     mvwaddstr(stats_window->scr, 3,1, "timer will begin when typing begins");
@@ -77,17 +77,8 @@ int main(int argc, char *argv[]) {
     mvwaddstr(stats_window->scr, 5,1, "GLHF :)");
     wrefresh(stats_window->scr);
     // read the words 
-    // reads the words into arr
-    while(getline(&buf, &n, fp) > 0)
-    {
-        // add space for next word
-        words = realloc(words, sizeof(*words) * (total_words + 1));
-        // delete the \n
-        buf[strlen(buf) - 1] = 0;
-        words[total_words] = strdup(buf);
-        total_words++;
-    }
 
+    words = read_words(buf, words, &n, fp);
 
     // takes the data and makes random words to be tested on
     for(int i = 0; i < tested_words; i++) {
@@ -187,3 +178,16 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
+char ** read_words(char * buf, char**words,  size_t * size, FILE * fp) {
+    size_t total_words = 0;
+    while(getline(&buf, size, fp) > 0)
+    {
+        // add space for next word
+        words = realloc(words, sizeof(*words) * (total_words + 1));
+        // delete the \n
+        buf[strlen(buf) - 1] = 0;
+        words[total_words] = strdup(buf);
+        total_words++;
+    }
+    return words;
+}
