@@ -12,6 +12,7 @@ typedef struct {
     int y;
 } MAIN_WIN;
 
+MAIN_WIN * create_screen(int y, int x, int height, int width);
 char** read_words(char * buf, char** words, size_t * n, FILE * fp);
 int main(int argc, char *argv[]) {
     int TESTED_WORDS_TOTAL = atoi(argv[1]);
@@ -49,23 +50,13 @@ int main(int argc, char *argv[]) {
     noecho();
 
     // init the screen
-    MAIN_WIN * typing_window = malloc(sizeof(typing_window));
-    typing_window->x = 1;
-    typing_window->y = 1;
-    typing_window->height = LINES - 8;
-    typing_window->width = COLS - 2;
-    typing_window->scr = newwin(typing_window->height, typing_window->width, typing_window->y, typing_window->x);
+    MAIN_WIN * typing_window = create_screen(1, 1, LINES - 8, COLS - 2);
     box(typing_window->scr, 0, 0);
     wrefresh(typing_window->scr);
     keypad(typing_window->scr, TRUE);
 
     // init stats screen
-    MAIN_WIN * stats_window = malloc(sizeof(stats_window));
-    stats_window->x = 1;
-    stats_window->y = LINES - 7;
-    stats_window->height = 7;
-    stats_window->width = COLS - 2;
-    stats_window->scr = newwin(stats_window->height, stats_window->width, stats_window->y, stats_window->x);
+    MAIN_WIN * stats_window = create_screen(LINES - 7, 1, 7, COLS - 2);
     box(stats_window->scr, 0, 0);
     wrefresh(stats_window->scr);
 
@@ -76,7 +67,6 @@ int main(int argc, char *argv[]) {
     mvwaddstr(stats_window->scr, 4,1, "progam will exit after pressing space on last word");
     mvwaddstr(stats_window->scr, 5,1, "GLHF :)");
     wrefresh(stats_window->scr);
-    // read the words 
 
     words = read_words(buf, words, &n, fp);
 
@@ -99,12 +89,11 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-
     wrefresh(typing_window->scr);
     
+    // this is where it needs to start
     word_col = 2;
     word_row = 2;
-    // start to type
 
     wmove(typing_window->scr, word_row, word_col);
     // iterate through every word in the test
@@ -190,4 +179,13 @@ char ** read_words(char * buf, char**words,  size_t * size, FILE * fp) {
         total_words++;
     }
     return words;
+}
+MAIN_WIN * create_screen(int y, int x, int height, int width) {
+    MAIN_WIN * win = malloc(sizeof(win));
+    win->y = y;
+    win->x = x;
+    win->height = height;
+    win->width = width;
+    win->scr = newwin(win->height, win->width, win->y, win->x);
+    return win;
 }
