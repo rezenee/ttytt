@@ -1,2 +1,2 @@
 # ttytt
-made this for a hackathon its super spaghetti lol 
+made this for a hackathon it was my first experience using ncurses.
